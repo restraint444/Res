@@ -32,20 +32,19 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            // 1. slightly off-white background
-            Color(UIColor.systemGray6)
-                .ignoresSafeArea()
-
-            // 2. card-style container
+            Color.gray.opacity(0.2).edgesIgnoringSafeArea(.all) // Darken the background slightly
             VStack(spacing: 16) {
                 Text("Notifications")
                     .font(.largeTitle.bold())
+                    .padding(.bottom, 8)
 
                 Toggle("", isOn: $isOn)
-                    .labelsHidden()            // remove the default label
                     .toggleStyle(SwitchToggleStyle(tint: .green))
-                    .scaleEffect(1.5)          // make the switch big & tappable
+                    .scaleEffect(1.5) // Make the switch bigger and easier to tap
                     .padding(.vertical, 8)
+                    .onChange(of: isOn) { newValue in
+                        nm.setScheduled(enabled: newValue)
+                    }
 
                 Text(isOn ? "ON" : "OFF")
                     .font(.title2)
@@ -54,14 +53,12 @@ struct ContentView: View {
             .padding(32)
             .background(Color.white)
             .cornerRadius(20)
-            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 4)
+            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 4)
         }
-        .onChange(of: isOn) { _, newValue in
-            nm.setScheduled(enabled: newValue)
-        }
-        .task {
-            await nm.requestPermission()
+        .onAppear {
+            Task {
+                await nm.requestPermission()
+            }
         }
     }
 }
-
