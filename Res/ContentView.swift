@@ -26,23 +26,43 @@ final class NotificationManager: ObservableObject {
     }
 }
 
+struct CustomSwitch: View {
+    @Binding var isOn: Bool
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 25)
+            .frame(width: 60, height: 35)
+            .scaleEffect(isOn ? 1.5 : 1.0)
+            .foregroundColor(isOn ? .green : .gray)
+            .overlay(
+                RoundedRectangle(cornerRadius: 15)
+                    .frame(width: 35, height: 35)
+                    .foregroundColor(isOn ? .white : .gray)
+                    .offset(x: isOn ? 25 : 0, y: 0)
+            )
+            .onTapGesture {
+                withAnimation {
+                    isOn.toggle()
+                }
+            }
+            .padding(.vertical, 8)
+    }
+}
+
 struct ContentView: View {
     @State private var isOn = false
     @StateObject private var nm = NotificationManager()
 
     var body: some View {
         ZStack {
-            Color.gray.opacity(0.2).edgesIgnoringSafeArea(.all) // Darken the background slightly
+            Color.gray.opacity(0.2).edgesIgnoringSafeArea(.all)
             VStack(spacing: 16) {
                 Text("Notifications")
                     .font(.largeTitle.bold())
                     .padding(.bottom, 8)
 
-                Toggle("", isOn: $isOn)
-                    .toggleStyle(SwitchToggleStyle(tint: .green))
-                    .scaleEffect(1.5) // Make the switch bigger and easier to tap
-                    .padding(.vertical, 8)
-                    .onChange(of: isOn) { newValue in
+                CustomSwitch(isOn: $isOn)
+                    .onChange(of: isOn) { _, newValue in
                         nm.setScheduled(enabled: newValue)
                     }
 
