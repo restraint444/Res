@@ -32,21 +32,36 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            Color.white.edgesIgnoringSafeArea(.all)
-            Toggle(isOn: $isOn) {
-                Text(isOn ? "Notifications ON" : "Notifications OFF")
+            // 1. slightly off-white background
+            Color(UIColor.systemGray6)
+                .ignoresSafeArea()
+
+            // 2. card-style container
+            VStack(spacing: 16) {
+                Text("Notifications")
+                    .font(.largeTitle.bold())
+
+                Toggle("", isOn: $isOn)
+                    .labelsHidden()            // remove the default label
+                    .toggleStyle(SwitchToggleStyle(tint: .green))
+                    .scaleEffect(1.5)          // make the switch big & tappable
+                    .padding(.vertical, 8)
+
+                Text(isOn ? "ON" : "OFF")
                     .font(.title2)
+                    .foregroundColor(isOn ? .green : .gray)
             }
-            .padding(40)
-            .onChange(of: isOn) { oldValue, newValue in
-                nm.setScheduled(enabled: newValue)
-            }
+            .padding(32)
+            .background(Color.white)
+            .cornerRadius(20)
+            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 4)
+        }
+        .onChange(of: isOn) { _, newValue in
+            nm.setScheduled(enabled: newValue)
         }
         .task {
             await nm.requestPermission()
         }
     }
 }
-
-
 
